@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>auto-mensage</title>
+  <style>
+    :root {
+      --bg: #0f172a;         /* slate-900 */
+      --panel: #111827;      /* gray-900 */
+      --muted: #1f2937;      /* gray-800 */
+      --text: #e5e7eb;       /* gray-200 */
+      --sub: #9ca3af;        /* gray-400 */
+      --accent: #22c55e;     /* green-500 */
+      --accent-2: #10b981;   /* emerald-500 */
+      --danger: #ef4444;     /* red-500 */
+      --ring: rgba(34,197,94,.35);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; padding: 32px; background: linear-gradient(180deg, #0b1025, #0f172a);
+      color: var(--text); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica Neue, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    }
+    .container { max-width: 980px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 20px; }
+    header h1 { margin: 0 0 6px; font-size: 28px; }
+    header p { margin: 0; color: var(--sub); }
+    .grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+    @media (min-width: 960px) {
+      .grid { grid-template-columns: 1.1fr .9fr; }
+    }
+    .card { background: rgba(17,24,39,.75); border: 1px solid rgba(255,255,255,.06); border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,.3); overflow: hidden; }
+    .card h2 { margin: 0; padding: 18px 18px 0; font-size: 18px; color: #d1fae5; }
+    .card .content { padding: 18px; }
+    label { display: block; font-size: 13px; color: var(--sub); margin-bottom: 6px; }
+    input[type="text"], input[type="tel"], textarea, select {
+      width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid rgba(255,255,255,.08); background: var(--muted); color: var(--text);
+      outline: none; transition: box-shadow .2s, border-color .2s, transform .06s ease;
+    }
+    textarea { resize: vertical; min-height: 120px; }
+    input:focus, textarea:focus, select:focus { box-shadow: 0 0 0 4px var(--ring); border-color: var(--accent); }
+    .row { display: grid; grid-template-columns: 1fr; gap: 12px; }
+    @media (min-width: 640px) {
+      .row.cols-2 { grid-template-columns: 1fr 1fr; }
+      .row.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+    }
+    .btn { appearance: none; border: none; padding: 12px 16px; border-radius: 12px; font-weight: 600; cursor: pointer; color: #062a12; background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      transition: transform .06s ease, box-shadow .2s; box-shadow: 0 10px 18px rgba(16,185,129,.25);
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn:active { transform: translateY(1px); }
+    .btn.secondary { background: #334155; color: var(--text); box-shadow: none; }
+    .btn.danger { background: linear-gradient(135deg, #f87171, #ef4444); color: #2b0a0a; box-shadow: 0 10px 18px rgba(239,68,68,.25); }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chip { font-size: 12px; padding: 6px 10px; border-radius: 999px; background: #0b5c2a; color: #d1fae5; border: 1px solid rgba(34,197,94,.25); }
+    .preview {
+      white-space: pre-wrap; background: #0b1226; border: 1px dashed rgba(255,255,255,.08); padding: 14px; border-radius: 12px; min-height: 120px; color: #e2e8f0;
+    }
+    .muted { color: var(--sub); font-size: 12px; }
+    .right { display: flex; gap: 10px; justify-content: flex-end; align-items: center; }
+    .spacer { height: 8px; }
+    .footer { color: var(--sub); font-size: 12px; text-align: center; margin-top: 6px; }
+    .inline { display: inline-flex; gap: 8px; align-items: center; }
+    .small { font-size: 12px; }
+    .pill { background: #0b5c2a; padding: 4px 8px; border-radius: 999px; font-size: 11px; color: #bbf7d0; border: 1px solid rgba(34,197,94,.35); }
+    .field-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin-bottom: 8px; }
+    .x { background: #3f2a2a; color: #fecaca; border: 1px solid rgba(239,68,68,.35); border-radius: 10px; padding: 0 10px; font-weight: 700; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Gerador de Mensagem para WhatsApp</h1>
+      <p>Monte uma mensagem com partes variáveis e envie direto no whatsapp</p>
+    </header>
+
+    <div class="grid">
+      <!-- Lado esquerdo: formulário -->
+      <section class="card">
+        <h2>1) Contato cliente
+        </h2>
+        <div class="content">
+          <div class="row cols-2">
+            <div>
+              <label>DDD + Telefone (somente números)</label>
+              <input type="tel" id="phone" placeholder="Ex.: 73999990000" />
+              <div class="muted small">Inclua DDD. Para outro país, inclua o código (ex.: 55...).</div>
+            </div>
+            <div>
+              <label>Destino</label>
+              <select id="destino">
+                <option value="wa">WhatsApp (app)</option>
+                <option value="web">WhatsApp Web (navegador)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="spacer"></div>
+          <h2>2) Mensagem</h2>
+          <div class="content" style="padding:0">
+            <div class="chips" style="margin: 0 0 10px 0; padding: 0 2px;">
+              <span class="chip">Use {1}, {2}, {3}... para marcar as partes variáveis</span>
+            </div>
+          </div>
+          <textarea id="template" placeholder="Ex.: Olá {1}! Sua encomenda {2} chegou no hub {3}. Confirma retirada hoje?"></textarea>
+          <div class="muted small">Dica: as chaves numéricas {1} {2} {3} serão substituídas pelos valores abaixo, na ordem.</div>
+
+          <div class="spacer"></div>
+          <h2>3) Variaveis</h2>
+          <div class="content" id="vars">
+            <!-- Campos dinâmicos entram aqui -->
+          </div>
+          <div class="right">
+            <button class="btn secondary" id="addVar">+ Adicionar campo</button>
+            <button class="btn danger" id="clearVars">Limpar variáveis</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Lado direito: preview e ação -->
+      <section class="card">
+        <h2>Pré-visualização</h2>
+        <div class="content">
+          <div class="preview" id="preview">Sua mensagem aparecerá aqui…</div>
+          <div class="spacer"></div>
+          <div class="row cols-2">
+            <button class="btn" id="openBtn">Abrir no WhatsApp</button>
+            <button class="btn secondary" id="copyBtn">Copiar texto</button>
+          </div>
+          <div class="spacer"></div>
+          <div class="inline">
+            <span class="pill">Atalhos</span>
+            <span class="small muted">{1},{2},{3}… → substituídos pelos campos abaixo</span>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="footer">Feito para agilizar seu atendimento no WhatsApp.</div>
+  </div>
+
+  <script>
+    // Utilidades
+    const $ = (sel) => document.querySelector(sel);
+    const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+
+    const phoneInput = $('#phone');
+    const destinoSel = $('#destino');
+    const templateEl = $('#template');
+    const varsWrap = $('#vars');
+    const previewEl = $('#preview');
+    const addVarBtn = $('#addVar');
+    const clearVarsBtn = $('#clearVars');
+    const openBtn = $('#openBtn');
+    const copyBtn = $('#copyBtn');
+
+    // Estado dinâmico das variáveis
+    let varCount = 0;
+
+    function addVar(value = '') {
+      varCount++;
+      const idx = varCount;
+      const row = document.createElement('div');
+      row.className = 'field-row';
+      row.dataset.idx = idx;
+      row.innerHTML = `
+        <div>
+          <label>Parte {${idx}}</label>
+          <input type="text" placeholder="Cole aqui o valor de {${idx}}" value="${value.replaceAll('"', '&quot;')}" />
+        </div>
+        <button title="Remover" class="x" type="button">×</button>
+      `;
+      const removeBtn = row.querySelector('.x');
+      removeBtn.addEventListener('click', () => { row.remove(); refreshPreview(); });
+      const input = row.querySelector('input');
+      input.addEventListener('input', refreshPreview);
+      varsWrap.appendChild(row);
+      refreshPreview();
+    }
+
+    function getVarsValues() {
+      return $$('#vars .field-row input').map(i => i.value || '');
+    }
+
+    function formatPhone(raw) {
+      const digits = (raw || '').replace(/\D+/g, '');
+      return digits; // já com DDI/DDDs se o usuário incluir
+    }
+
+    function buildMessage() {
+      const tpl = templateEl.value || '';
+      const values = getVarsValues();
+      let msg = tpl;
+      // Substitui {1}..{n}
+      values.forEach((val, i) => {
+        const n = i + 1;
+        const re = new RegExp('\\{' + n + '\\}', 'g');
+        msg = msg.replace(re, val);
+      });
+      return msg.trim();
+    }
+
+    function refreshPreview() {
+      const msg = buildMessage();
+      previewEl.textContent = msg || 'Sua mensagem aparecerá aqui…';
+    }
+
+    function openWhatsApp() {
+      const phone = formatPhone(phoneInput.value);
+      const text = buildMessage();
+      if (!phone) { alert('Informe o telefone (somente números).'); return; }
+      if (!text) { alert('Preencha o template e as partes necessárias.'); return; }
+
+      const encoded = encodeURIComponent(text);
+      const isWeb = destinoSel.value === 'web';
+      // Links oficiais: wa.me (app) ou api.whatsapp.com (web)
+      const url = isWeb
+        ? `https://api.whatsapp.com/send?phone=${phone}&text=${encoded}`
+        : `https://wa.me/${phone}?text=${encoded}`;
+
+      window.open(url, '_blank', 'noopener');
+    }
+
+    async function copyText() {
+      const text = buildMessage();
+      if (!text) { alert('Nada para copiar.'); return; }
+      try {
+        await navigator.clipboard.writeText(text);
+        copyBtn.textContent = 'Copiado!';
+        setTimeout(() => (copyBtn.textContent = 'Copiar texto'), 1200);
+      } catch (e) {
+        alert('Não foi possível copiar automaticamente. Selecione e copie manualmente no preview.');
+      }
+    }
+
+    // Eventos
+    templateEl.addEventListener('input', refreshPreview);
+    addVarBtn.addEventListener('click', () => addVar(''));
+    clearVarsBtn.addEventListener('click', () => { varsWrap.innerHTML = ''; varCount = 0; refreshPreview(); });
+    openBtn.addEventListener('click', openWhatsApp);
+    copyBtn.addEventListener('click', copyText);
+
+    // Estado inicial — três variáveis comuns
+    addVar('');
+    addVar('');
+    addVar('');
+
+    // Exemplo rápido para quem quiser testar
+    templateEl.value = 'Olá {1}! Sua encomenda {2} chegou no hub {3}. Confirma retirada hoje?';
+    refreshPreview();
+  </script>
+</body>
+</html>
+
